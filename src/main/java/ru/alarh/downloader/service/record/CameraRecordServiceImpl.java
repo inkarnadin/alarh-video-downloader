@@ -48,7 +48,7 @@ public class CameraRecordServiceImpl implements CameraRecordService {
 
         List<Target> targets = sourcePrepareService.readTargetFromFileSystem();
 
-        ExecutorService executor = Executors.newFixedThreadPool(50);
+        ExecutorService executor = Executors.newFixedThreadPool(6);
         List<Callable<Void>> callables = new ArrayList<>();
         Map<Target, Integer> results = new ConcurrentHashMap<>();
 
