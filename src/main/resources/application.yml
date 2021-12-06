@@ -1,0 +1,10 @@
+server:
+  port: 8081
+
+alarh:
+  source:
+    path: source.txt
+
+logging:
+  level:
+    ru.alarh.*: info
