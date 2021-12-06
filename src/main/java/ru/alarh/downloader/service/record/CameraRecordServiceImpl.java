@@ -1,6 +1,7 @@
 package ru.alarh.downloader.service.record;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -14,7 +15,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Camera record service.
@@ -37,21 +41,28 @@ public class CameraRecordServiceImpl implements CameraRecordService {
      * @return metadata object with searching results
      */
     @Override
+    @SneakyThrows
     public MetaResult<SearchResultObject> searchByAll() {
         StopWatch sw = new StopWatch();
         sw.start();
 
         List<Target> targets = sourcePrepareService.readTargetFromFileSystem();
 
+        ExecutorService executor = Executors.newFixedThreadPool(50);
+        List<Callable<Void>> callables = new ArrayList<>();
         Map<Target, Integer> results = new ConcurrentHashMap<>();
+
         for (Target target : targets) {
-            try {
-                Integer i = contentManagementService.searchContent(target);
-                results.put(target, i);
-            } catch (Exception xep) {
-                results.put(target, 0);
-            }
+            callables.add(() -> {
+                try {
+                    results.put(target, contentManagementService.searchContent(target));
+                } catch (Exception xep) {
+                    results.put(target, 0);
+                }
+                return null;
+            });
         }
+        executor.invokeAll(callables);
 
         List<SearchResultObject> outputList = new ArrayList<>();
         for (Map.Entry<Target, Integer> entry : results.entrySet()) {
