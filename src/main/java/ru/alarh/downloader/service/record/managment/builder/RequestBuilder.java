@@ -1,6 +1,8 @@
 package ru.alarh.downloader.service.record.managment.builder;
 
 import lombok.SneakyThrows;
+import ru.alarh.downloader.domain.Target;
+import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
 
 import java.util.Collections;
@@ -32,6 +34,20 @@ public class RequestBuilder {
         requestXML.setMetadataList(Collections.singletonList(new SearchRequestXML.Metadata("//recordType.meta.std-cgi.com/VideoMotion")));
 
         return requestXML;
+    }
+
+    /**
+     * Download XML template builder.
+     *
+     * @param playbackUrl url to video file
+     * @param target host
+     * @return object for download request
+     */
+    public static DownloadRequestXML createDownloadRequest(Target target, String playbackUrl) {
+        DownloadRequestXML downloadRequestXML = new DownloadRequestXML();
+        downloadRequestXML.setPlaybackURI(playbackUrl);
+
+        return downloadRequestXML;
     }
 
 }

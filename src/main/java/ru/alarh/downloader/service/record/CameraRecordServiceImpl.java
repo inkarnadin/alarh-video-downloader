@@ -8,7 +8,7 @@ import org.springframework.util.StopWatch;
 import ru.alarh.downloader.controller.dto.MetaResult;
 import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.service.record.dto.SearchResultObject;
-import ru.alarh.downloader.service.record.managment.ContentManagementServiceISAPI;
+import ru.alarh.downloader.service.record.managment.ContentManagementServiceImpl;
 import ru.alarh.downloader.service.source.SourcePrepareService;
 
 import java.time.Duration;
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class CameraRecordServiceImpl implements CameraRecordService {
 
-    private final ContentManagementServiceISAPI contentManagementService;
+    private final ContentManagementServiceImpl contentManagementService;
     private final SourcePrepareService sourcePrepareService;
 
     /**
@@ -66,8 +66,9 @@ public class CameraRecordServiceImpl implements CameraRecordService {
 
         List<SearchResultObject> outputList = new ArrayList<>();
         for (Map.Entry<Target, Integer> entry : results.entrySet()) {
-            if (entry.getValue() != 0)
-                outputList.add(new SearchResultObject(entry.getKey().getName(), entry.getKey().getHost(), entry.getValue()));
+            if (entry.getValue() != 0) {
+                outputList.add(new SearchResultObject(entry.getKey().getName(), entry.getKey().getHost(), entry.getValue(), null));
+            }
         }
 
         sw.stop();
@@ -80,6 +81,14 @@ public class CameraRecordServiceImpl implements CameraRecordService {
         mr.setResults(outputList);
 
         return mr;
+    }
+
+    @Override
+    public MetaResult<String> downloadRecord() {
+        List<Target> targets = sourcePrepareService.readTargetFromFileSystem();
+
+        contentManagementService.downloadContent(targets.get(0), "rtsp://192.168.1.103/Streaming/tracks/101?starttime=2021-12-11T20:01:04Z&amp;endtime=2021-12-11T20:02:00Z&amp;name=ch01_00000000066000101&amp;size=14770140");
+        return null;
     }
 
 }

@@ -2,7 +2,7 @@ package ru.alarh.downloader.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+import ru.alarh.downloader.configuration.web.WebClient;
 
 /**
  * Web beans configuration class.
@@ -13,13 +13,13 @@ import org.springframework.web.client.RestTemplate;
 public class WebConfiguration {
 
     /**
-     * RestTemplate bean configuration method.
+     * Web client bean configuration method.
      *
      * @return RestTemplate instance
      */
     @Bean
-    RestTemplate httpClient() {
-        return new RestTemplate();
+    WebClient webClient() {
+        return new WebClient();
     }
 
 }

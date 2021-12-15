@@ -19,7 +19,10 @@ public interface ContentManagementService {
 
     /**
      * Download camera record.
+     *
+     * @param target host
+     * @param playbackUri path to video file
      */
-    void downloadContent();
+    void downloadContent(Target target, String playbackUri);
 
 }
