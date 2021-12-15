@@ -2,6 +2,7 @@ package ru.alarh.downloader.service.xml;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import ru.alarh.downloader.configuration.xml.XMLReaderWithoutNamespace;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -16,7 +17,7 @@ import java.io.OutputStream;
  * @author inkarnadin
  */
 @Service
-public class DefaultMarshallingService implements MarshallingService {
+public class MarshallingServiceImpl implements MarshallingService {
 
     /**
      * Convert object to XML.

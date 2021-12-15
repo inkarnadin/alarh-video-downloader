@@ -1,4 +1,4 @@
-package ru.alarh.downloader.service.xml;
+package ru.alarh.downloader.configuration.xml;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.util.StreamReaderDelegate;
@@ -8,7 +8,7 @@ import javax.xml.stream.util.StreamReaderDelegate;
  *
  * @author inkarnadin
  */
-class XMLReaderWithoutNamespace extends StreamReaderDelegate {
+public class XMLReaderWithoutNamespace extends StreamReaderDelegate {
 
     public XMLReaderWithoutNamespace(XMLStreamReader reader) {
         super(reader);

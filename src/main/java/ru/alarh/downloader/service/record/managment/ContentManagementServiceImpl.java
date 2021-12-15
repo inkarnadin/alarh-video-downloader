@@ -11,7 +11,7 @@ import ru.alarh.downloader.configuration.web.WebClient;
 import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.exception.EmptyCredentialsException;
 import ru.alarh.downloader.exception.EmptyResponseException;
-import ru.alarh.downloader.service.record.managment.builder.RequestBuilder;
+import ru.alarh.downloader.service.record.managment.builder.RecordManagmentRequestBuilder;
 import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchResponseXML;
@@ -59,7 +59,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
 
         String xmlBody;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            marshallingService.marshalling(SearchRequestXML.class, RequestBuilder.createSearchRequest(), os);
+            marshallingService.marshalling(SearchRequestXML.class, RecordManagmentRequestBuilder.createSearchRequest(), os);
             xmlBody = os.toString();
 
             log.debug(xmlBody);
@@ -95,7 +95,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
 
         String xmlBody;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            marshallingService.marshalling(DownloadRequestXML.class, RequestBuilder.createDownloadRequest(target, playbackUri), os);
+            marshallingService.marshalling(DownloadRequestXML.class, RecordManagmentRequestBuilder.createDownloadRequest(target, playbackUri), os);
             xmlBody = os.toString();
 
             log.debug(xmlBody);

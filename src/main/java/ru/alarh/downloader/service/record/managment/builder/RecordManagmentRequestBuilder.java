@@ -12,7 +12,7 @@ import java.util.Collections;
  *
  * @author inkarnadin
  */
-public class RequestBuilder {
+public class RecordManagmentRequestBuilder {
 
     /**
      * Search XML template builder.
