@@ -23,8 +23,8 @@ public class CameraRecordController {
     }
 
     @GetMapping(value = "/download")
-    ResponseEntity<MetaResult<String>> download() {
-        MetaResult<String> result = cameraRecordService.downloadRecord();
+    ResponseEntity<MetaResult<Void>> download() {
+        MetaResult<Void> result = cameraRecordService.downloadRecords();
         return ResponseEntity.ok(result);
     }
 

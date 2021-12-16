@@ -17,6 +17,6 @@ public interface CameraRecordService {
      */
     MetaResult<SearchResultObject> searchByAll();
 
-    MetaResult<String> downloadRecord();
+    MetaResult<Void> downloadRecords();
 
 }

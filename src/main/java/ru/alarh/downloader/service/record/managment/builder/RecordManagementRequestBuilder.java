@@ -2,6 +2,7 @@ package ru.alarh.downloader.service.record.managment.builder;
 
 import lombok.SneakyThrows;
 import ru.alarh.downloader.domain.Target;
+import ru.alarh.downloader.service.record.dto.PlaybackObject;
 import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
 
@@ -12,7 +13,7 @@ import java.util.Collections;
  *
  * @author inkarnadin
  */
-public class RecordManagmentRequestBuilder {
+public class RecordManagementRequestBuilder {
 
     /**
      * Search XML template builder.
@@ -39,13 +40,12 @@ public class RecordManagmentRequestBuilder {
     /**
      * Download XML template builder.
      *
-     * @param playbackUrl url to video file
-     * @param target host
+     * @param playback playback object with url
      * @return object for download request
      */
-    public static DownloadRequestXML createDownloadRequest(Target target, String playbackUrl) {
+    public static DownloadRequestXML createDownloadRequest(PlaybackObject playback) {
         DownloadRequestXML downloadRequestXML = new DownloadRequestXML();
-        downloadRequestXML.setPlaybackURI(playbackUrl);
+        downloadRequestXML.setPlaybackURI(playback.getPlaybackUrl());
 
         return downloadRequestXML;
     }

@@ -1,6 +1,8 @@
 package ru.alarh.downloader.service.record.managment;
 
 import ru.alarh.downloader.domain.Target;
+import ru.alarh.downloader.service.record.dto.PlaybackObject;
+import ru.alarh.downloader.service.record.dto.SearchResultObject;
 
 /**
  * Abstract content manager class for working with camera records data.
@@ -15,14 +17,14 @@ public interface ContentManagementService {
      * @param target host
      * @return count of finding records
      */
-    Integer searchContent(Target target);
+    SearchResultObject searchContent(Target target);
 
     /**
      * Download camera record.
      *
      * @param target host
-     * @param playbackUri path to video file
+     * @param playback path to video file
      */
-    void downloadContent(Target target, String playbackUri);
+    void downloadContent(Target target, PlaybackObject playback);
 
 }

@@ -6,12 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import ru.alarh.downloader.configuration.web.WebClient;
 import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.exception.EmptyCredentialsException;
 import ru.alarh.downloader.exception.EmptyResponseException;
-import ru.alarh.downloader.service.record.managment.builder.RecordManagmentRequestBuilder;
+import ru.alarh.downloader.service.record.dto.PlaybackObject;
+import ru.alarh.downloader.service.record.dto.SearchResultObject;
+import ru.alarh.downloader.service.record.managment.builder.RecordManagementRequestBuilder;
 import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchResponseXML;
@@ -23,7 +24,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Content manager class for working with camera records data.
@@ -38,7 +41,6 @@ public class ContentManagementServiceImpl implements ContentManagementService {
     private static final String SEARCH = "http://%s/ISAPI/ContentMgmt/search";
     private static final String DOWNLOAD = "http://%s/ISAPI/ContentMgmt/download";
 
-    private final RestTemplate client;
     private final WebClient webClient;
     private final MarshallingService marshallingService;
 
@@ -51,7 +53,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
      */
     @Override
     @SneakyThrows
-    public Integer searchContent(Target target) {
+    public SearchResultObject searchContent(Target target) {
         if (target.getLogin().isEmpty() || target.getPassword().isEmpty())
             throw new EmptyCredentialsException("Empty credentials not allowed");
 
@@ -59,7 +61,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
 
         String xmlBody;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            marshallingService.marshalling(SearchRequestXML.class, RecordManagmentRequestBuilder.createSearchRequest(), os);
+            marshallingService.marshalling(SearchRequestXML.class, RecordManagementRequestBuilder.createSearchRequest(), os);
             xmlBody = os.toString();
 
             log.debug(xmlBody);
@@ -78,8 +80,21 @@ public class ContentManagementServiceImpl implements ContentManagementService {
 
         try (InputStream is = new ByteArrayInputStream(response.getBody().getBytes())) {
             SearchResponseXML responseXML = (SearchResponseXML) marshallingService.unmarshalling(SearchResponseXML.class, is);
-            return Integer.parseInt(responseXML.getCount());
+
+            List<String> playbacks = responseXML.getMatch().getSearchMatchItem().stream()
+                    .map(SearchResponseXML.Match.SearchMatchItem::getMediaSegmentDescriptor)
+                    .map(SearchResponseXML.Match.SearchMatchItem.MediaSegmentDescriptor::getPlaybackURI)
+                    .collect(Collectors.toList());
+
+            return new SearchResultObject(
+                    target.getName(),
+                    target.getHost(),
+                    Integer.parseInt(responseXML.getCount()),
+                    playbacks);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -87,15 +102,15 @@ public class ContentManagementServiceImpl implements ContentManagementService {
      */
     @Override
     @SneakyThrows
-    public void downloadContent(Target target, String playbackUri) {
+    public void downloadContent(Target target, PlaybackObject playback) {
         if (target.getLogin().isEmpty() || target.getPassword().isEmpty())
             throw new EmptyCredentialsException("Empty credentials not allowed");
 
-        log.info("downloading = {}", playbackUri);
+        log.info("downloading = {}", playback);
 
         String xmlBody;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            marshallingService.marshalling(DownloadRequestXML.class, RecordManagmentRequestBuilder.createDownloadRequest(target, playbackUri), os);
+            marshallingService.marshalling(DownloadRequestXML.class, RecordManagementRequestBuilder.createDownloadRequest(playback), os);
             xmlBody = os.toString();
 
             log.debug(xmlBody);
@@ -107,7 +122,10 @@ public class ContentManagementServiceImpl implements ContentManagementService {
         HttpEntity<String> body = new HttpEntity<>(xmlBody, buildHeaders(target));
         ResponseEntity<byte[]> res = (ResponseEntity<byte[]>) webClient.doGetWithBody(url, body, byte[].class);
 
-        Files.write(Paths.get("test.mp4"), Objects.requireNonNull(res.getBody()));
+        Files.write(
+                Paths.get(String.format("result/%s.mp4", playback.getName())),
+                Objects.requireNonNull(res.getBody())
+        );
     }
 
     private MultiValueMap<String, String> buildHeaders(Target target) {
@@ -116,6 +134,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
 
         MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, String.format("Basic %s", authString));
+        headers.add(HttpHeaders.CONNECTION, "keep-alive");
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE);
 
         return headers;

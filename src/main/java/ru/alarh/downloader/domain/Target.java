@@ -1,6 +1,7 @@
 package ru.alarh.downloader.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Primary object which store data about camera host.
@@ -8,6 +9,7 @@ import lombok.Data;
  * @author inkarnadin
  */
 @Data
+@EqualsAndHashCode
 public class Target {
 
     private final String host;

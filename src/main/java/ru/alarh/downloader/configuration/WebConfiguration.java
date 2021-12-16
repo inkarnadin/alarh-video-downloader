@@ -15,7 +15,7 @@ public class WebConfiguration {
     /**
      * Web client bean configuration method.
      *
-     * @return RestTemplate instance
+     * @return WebClient instance
      */
     @Bean
     WebClient webClient() {
