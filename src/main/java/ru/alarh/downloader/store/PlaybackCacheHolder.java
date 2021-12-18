@@ -16,6 +16,10 @@ public final class PlaybackCacheHolder {
 
     private final static Map<Target, List<PlaybackObject>> playbackMap = new ConcurrentHashMap<>();
 
+    private PlaybackCacheHolder() {
+        throw new AssertionError("Utility class can't be creation");
+    }
+
     /**
      * Get all playback links by target instance.
      *

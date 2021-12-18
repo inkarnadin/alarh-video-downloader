@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import ru.alarh.downloader.configuration.web.WebClient;
 import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.exception.EmptyCredentialsException;
@@ -13,6 +12,8 @@ import ru.alarh.downloader.exception.EmptyResponseException;
 import ru.alarh.downloader.service.record.dto.PlaybackObject;
 import ru.alarh.downloader.service.record.dto.SearchResultObject;
 import ru.alarh.downloader.service.record.managment.builder.RecordManagementRequestBuilder;
+import ru.alarh.downloader.service.record.managment.filesystem.FileSystemUtility;
+import ru.alarh.downloader.service.record.managment.header.HeaderBuilder;
 import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchResponseXML;
@@ -23,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("unchecked")
 public class ContentManagementServiceImpl implements ContentManagementService {
 
     private static final String SEARCH = "http://%s/ISAPI/ContentMgmt/search";
@@ -43,6 +44,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
 
     private final WebClient webClient;
     private final MarshallingService marshallingService;
+    private final HeaderBuilder headerBuilder;
 
     /**
      * Search camera records.
@@ -70,7 +72,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
         String url = String.format(SEARCH, target.getHost());
         log.debug(url);
 
-        HttpEntity<String> body = new HttpEntity<>(xmlBody, buildHeaders(target));
+        HttpEntity<String> body = new HttpEntity<>(xmlBody, headerBuilder.build(target));
         ResponseEntity<String> response = (ResponseEntity<String>) webClient.doPost(url, body, String.class);
 
         log.trace(response.getBody());
@@ -118,26 +120,12 @@ public class ContentManagementServiceImpl implements ContentManagementService {
             String url = String.format(DOWNLOAD, target.getHost());
             log.debug(url);
 
-            HttpEntity<String> body = new HttpEntity<>(xmlBody, buildHeaders(target));
+            HttpEntity<String> body = new HttpEntity<>(xmlBody, headerBuilder.build(target));
             ResponseEntity<byte[]> res = (ResponseEntity<byte[]>) webClient.doGetWithBody(url, body, byte[].class);
 
-            Files.write(
-                    Paths.get(String.format("result/%s.mp4", playback.getName())),
-                    Objects.requireNonNull(res.getBody())
-            );
+            FileSystemUtility.createDirectoryIfAbsent();
+            FileSystemUtility.writeDataToFile(playback.getName(), res.getBody());
         }
-    }
-
-    private MultiValueMap<String, String> buildHeaders(Target target) {
-        String authString = Base64.getEncoder().encodeToString(String.format("%s:%s", target.getLogin(), target.getPassword()).getBytes());
-        log.debug(authString);
-
-        MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, String.format("Basic %s", authString));
-        headers.add(HttpHeaders.CONNECTION, "keep-alive");
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE);
-
-        return headers;
     }
 
 }
