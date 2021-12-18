@@ -125,7 +125,6 @@ public class CameraRecordServiceImpl implements CameraRecordService {
 
             for (PlaybackObject playback : playbacks) {
                 contentManagementService.downloadContent(target, playback);
-                Thread.sleep(1000);
                 countSuccess.getAndIncrement();
             }
         }

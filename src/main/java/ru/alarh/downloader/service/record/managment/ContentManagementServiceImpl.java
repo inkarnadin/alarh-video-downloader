@@ -64,7 +64,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
             marshallingService.marshalling(SearchRequestXML.class, RecordManagementRequestBuilder.createSearchRequest(), os);
             xmlBody = os.toString();
 
-            log.debug(xmlBody);
+            log.trace(xmlBody);
         }
 
         String url = String.format(SEARCH, target.getHost());
@@ -73,7 +73,7 @@ public class ContentManagementServiceImpl implements ContentManagementService {
         HttpEntity<String> body = new HttpEntity<>(xmlBody, buildHeaders(target));
         ResponseEntity<String> response = (ResponseEntity<String>) webClient.doPost(url, body, String.class);
 
-        log.debug(response.getBody());
+        log.trace(response.getBody());
 
         if (Objects.isNull(response.getBody()))
             throw new EmptyResponseException("Empty body response");
@@ -113,19 +113,19 @@ public class ContentManagementServiceImpl implements ContentManagementService {
             marshallingService.marshalling(DownloadRequestXML.class, RecordManagementRequestBuilder.createDownloadRequest(playback), os);
             xmlBody = os.toString();
 
-            log.debug(xmlBody);
+            log.trace(xmlBody);
+
+            String url = String.format(DOWNLOAD, target.getHost());
+            log.debug(url);
+
+            HttpEntity<String> body = new HttpEntity<>(xmlBody, buildHeaders(target));
+            ResponseEntity<byte[]> res = (ResponseEntity<byte[]>) webClient.doGetWithBody(url, body, byte[].class);
+
+            Files.write(
+                    Paths.get(String.format("result/%s.mp4", playback.getName())),
+                    Objects.requireNonNull(res.getBody())
+            );
         }
-
-        String url = String.format(DOWNLOAD, target.getHost());
-        log.debug(url);
-
-        HttpEntity<String> body = new HttpEntity<>(xmlBody, buildHeaders(target));
-        ResponseEntity<byte[]> res = (ResponseEntity<byte[]>) webClient.doGetWithBody(url, body, byte[].class);
-
-        Files.write(
-                Paths.get(String.format("result/%s.mp4", playback.getName())),
-                Objects.requireNonNull(res.getBody())
-        );
     }
 
     private MultiValueMap<String, String> buildHeaders(Target target) {
