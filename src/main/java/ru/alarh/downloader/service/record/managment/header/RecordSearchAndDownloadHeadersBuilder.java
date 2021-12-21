@@ -3,6 +3,7 @@ package ru.alarh.downloader.service.record.managment.header;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import ru.alarh.downloader.domain.Target;
 
@@ -14,6 +15,7 @@ import java.util.Base64;
  * @author inkarnadin
  */
 @Slf4j
+@Service
 public class RecordSearchAndDownloadHeadersBuilder implements HeaderBuilder {
 
     /**

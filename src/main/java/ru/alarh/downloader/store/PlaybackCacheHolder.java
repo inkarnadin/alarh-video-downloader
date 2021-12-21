@@ -1,5 +1,6 @@
 package ru.alarh.downloader.store;
 
+import lombok.experimental.UtilityClass;
 import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.service.record.dto.PlaybackObject;
 
@@ -12,13 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author inkarnadin
  */
+@UtilityClass
 public final class PlaybackCacheHolder {
 
     private final static Map<Target, List<PlaybackObject>> playbackMap = new ConcurrentHashMap<>();
-
-    private PlaybackCacheHolder() {
-        throw new AssertionError("Utility class can't be creation");
-    }
 
     /**
      * Get all playback links by target instance.

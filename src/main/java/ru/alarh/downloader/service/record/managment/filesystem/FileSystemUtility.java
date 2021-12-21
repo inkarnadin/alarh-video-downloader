@@ -1,6 +1,7 @@
 package ru.alarh.downloader.service.record.managment.filesystem;
 
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -12,13 +13,10 @@ import java.util.Objects;
  *
  * @author inkarnadin
  */
+@UtilityClass
 public final class FileSystemUtility {
 
     private static final String ROOT = "result";
-
-    private FileSystemUtility() {
-        throw new AssertionError("Utility class can't be creation");
-    }
 
     /**
      * Create root directory.
