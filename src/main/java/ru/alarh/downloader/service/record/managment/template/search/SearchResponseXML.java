@@ -2,7 +2,6 @@ package ru.alarh.downloader.service.record.managment.template.search;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;

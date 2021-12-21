@@ -1,7 +1,6 @@
 package ru.alarh.downloader.service.record.managment.builder;
 
 import lombok.SneakyThrows;
-import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.service.record.dto.PlaybackObject;
 import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
