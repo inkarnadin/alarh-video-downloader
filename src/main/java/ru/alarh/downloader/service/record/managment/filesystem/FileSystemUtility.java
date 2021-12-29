@@ -22,7 +22,7 @@ public final class FileSystemUtility {
      * Create root directory.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void createDirectoryIfAbsent() {
+    synchronized public static void createDirectoryIfAbsent() {
         new File(ROOT).mkdir();
     }
 

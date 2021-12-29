@@ -1,6 +1,9 @@
 package ru.alarh.downloader.service.record.managment.builder;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.stereotype.Component;
+import ru.alarh.downloader.configuration.properties.SearchProperties;
 import ru.alarh.downloader.service.record.dto.PlaybackObject;
 import ru.alarh.downloader.service.record.managment.template.download.DownloadRequestXML;
 import ru.alarh.downloader.service.record.managment.template.search.SearchRequestXML;
@@ -12,7 +15,11 @@ import java.util.Collections;
  *
  * @author inkarnadin
  */
+@Component
+@RequiredArgsConstructor
 public class RecordManagementRequestBuilder {
+
+    private final SearchProperties properties;
 
     /**
      * Search XML template builder.
@@ -20,17 +27,17 @@ public class RecordManagementRequestBuilder {
      * @return object for search request
      */
     @SneakyThrows
-    public static SearchRequestXML createSearchRequest() {
+    public SearchRequestXML createSearchRequest() {
         SearchRequestXML requestXML = new SearchRequestXML();
         requestXML.setSearchId("C99F07A5-55C0-0001-FED3-1920796014AD");
         requestXML.setTrackIdList(Collections.singletonList(new SearchRequestXML.TrackId("101")));
         requestXML.setTimeSpanList(Collections.singletonList(
                 new SearchRequestXML.TimeSpan(
-                        new SearchRequestXML.TimeSpan.TimeSpanWrapper("2021-11-21T00:00:00Z", "2021-12-25T00:00:00Z")
+                        new SearchRequestXML.TimeSpan.TimeSpanWrapper(properties.getStartDate(), properties.getEndDate())
                 ))
         );
-        requestXML.setResultLimit(40);
-        requestXML.setPosition(0);
+        requestXML.setResultLimit(properties.getResultLimit());
+        requestXML.setPosition(properties.getStartPosition());
         requestXML.setMetadataList(Collections.singletonList(new SearchRequestXML.Metadata("//recordType.meta.std-cgi.com/VideoMotion")));
 
         return requestXML;
@@ -42,7 +49,7 @@ public class RecordManagementRequestBuilder {
      * @param playback playback object with url
      * @return object for download request
      */
-    public static DownloadRequestXML createDownloadRequest(PlaybackObject playback) {
+    public DownloadRequestXML createDownloadRequest(PlaybackObject playback) {
         DownloadRequestXML downloadRequestXML = new DownloadRequestXML();
         downloadRequestXML.setPlaybackURI(playback.getPlaybackUrl());
 

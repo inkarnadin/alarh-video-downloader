@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.alarh.downloader.controller.dto.MetaResult;
 import ru.alarh.downloader.service.record.CameraRecordService;
+import ru.alarh.downloader.service.record.dto.DownloadResultObject;
 import ru.alarh.downloader.service.record.dto.SearchResultObject;
 
 @RestController
@@ -23,8 +24,8 @@ public class CameraRecordController {
     }
 
     @GetMapping(value = "/download")
-    ResponseEntity<MetaResult<Void>> download() {
-        MetaResult<Void> result = cameraRecordService.downloadRecords();
+    ResponseEntity<MetaResult<DownloadResultObject>> download() {
+        MetaResult<DownloadResultObject> result = cameraRecordService.downloadRecords();
         return ResponseEntity.ok(result);
     }
 

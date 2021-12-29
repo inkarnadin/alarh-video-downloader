@@ -6,6 +6,11 @@ import java.time.LocalTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Playback link wrapper.
+ *
+ * @author inkarnadin
+ */
 @Data
 public class PlaybackObject {
 

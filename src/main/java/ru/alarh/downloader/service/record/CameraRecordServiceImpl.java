@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import ru.alarh.downloader.controller.dto.MetaResult;
 import ru.alarh.downloader.domain.Target;
+import ru.alarh.downloader.service.record.dto.DownloadResultObject;
 import ru.alarh.downloader.service.record.dto.PlaybackObject;
 import ru.alarh.downloader.service.record.dto.SearchResultObject;
 import ru.alarh.downloader.service.record.managment.ContentManagementServiceImpl;
@@ -14,14 +15,8 @@ import ru.alarh.downloader.service.source.SourcePrepareService;
 import ru.alarh.downloader.store.PlaybackCacheHolder;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -41,7 +36,7 @@ public class CameraRecordServiceImpl implements CameraRecordService {
     private final SourcePrepareService sourcePrepareService;
 
     /**
-     * Aggregate method for search by all targets.
+     * Method for search by all targets. <br/>
      * Targets which throw exception or return zero will be skipped.
      * Metadata object will be filled meta info about search process, such as time, count and other.
      *
@@ -60,13 +55,17 @@ public class CameraRecordServiceImpl implements CameraRecordService {
         for (Target target : targets) {
             callables.add(() -> {
                 try {
-                    SearchResultObject searchResultObject = contentManagementService.searchContent(target);
-                    List<PlaybackObject> playbackObjects = searchResultObject.getPlaybacks().stream()
-                            .map(PlaybackObject::new)
-                            .collect(Collectors.toList());
+                    Optional<SearchResultObject> searchResultObject = contentManagementService.searchContent(target);
 
-                    results.put(target, searchResultObject);
-                    PlaybackCacheHolder.putPlaybacks(target, playbackObjects);
+                    if (searchResultObject.isPresent()) {
+                        SearchResultObject resultObject = searchResultObject.get();
+                        List<PlaybackObject> playbackObjects = resultObject.getPlaybacks().stream()
+                                .map(PlaybackObject::new)
+                                .collect(Collectors.toList());
+
+                        results.put(target, resultObject);
+                        PlaybackCacheHolder.putPlaybacks(target, playbackObjects);
+                    }
                 } catch (Exception xep) {
                     results.put(target, null);
                 }
@@ -81,7 +80,7 @@ public class CameraRecordServiceImpl implements CameraRecordService {
                 outputList.add(entry.getValue());
 
         sw.stop();
-        log.info("searching finished...");
+        log.info("Searching finished");
 
         MetaResult<SearchResultObject> mr = new MetaResult<>();
         mr.setCountAll(targets.size());
@@ -92,53 +91,59 @@ public class CameraRecordServiceImpl implements CameraRecordService {
         return mr;
     }
 
+    /**
+     * Method for search by all targets. <br/>
+     * Get all targets from source file and reject all playback links by target.
+     * Each playback link will start the download process.
+     * It doesn't have to be concurrent because the receiving server will fail for too frequent requests. There must
+     * also be a timeout between the request. Now it is 3 seconds.
+     *
+     * @return metadata object with downloading results
+     */
     @Override
     @SneakyThrows
-    public MetaResult<Void> downloadRecords() {
+    public MetaResult<DownloadResultObject> downloadRecords() {
         StopWatch sw = new StopWatch();
         sw.start();
 
         List<Target> targets = sourcePrepareService.readTargetFromFileSystem();
-        List<Callable<Void>> callables = new ArrayList<>();
 
         AtomicInteger count = new AtomicInteger();
         AtomicInteger countSuccess = new AtomicInteger();
 
-//        for (Target target : targets) {
-//            List<PlaybackObject> playbacks = PlaybackCacheHolder.getPlaybacks(target);
-//            count.getAndAdd(playbacks.size());
-//
-//            for (PlaybackObject playback : playbacks) {
-//                callables.add(() -> {
-//                    contentManagementService.downloadContent(target, playback);
-//                    countSuccess.getAndIncrement();
-//                    return null;
-//                });
-//            }
-//            //PlaybackCacheHolder.remove(target);
-//        }
-//        executor.invokeAll(callables);
+        List<DownloadResultObject> result = new ArrayList<>();
 
         for (Target target : targets) {
             List<PlaybackObject> playbacks = PlaybackCacheHolder.getPlaybacks(target);
             count.getAndAdd(playbacks.size());
 
+            AtomicInteger counter = new AtomicInteger();
             for (PlaybackObject playback : playbacks) {
-                contentManagementService.downloadContent(target, playback);
+                Thread.sleep(3000);
+                CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+                    boolean isLoaded = contentManagementService.downloadContent(target, playback);
+                    if (isLoaded) {
+                        result.add(new DownloadResultObject(playback.getName()));
+                        counter.incrementAndGet();
+                    }
+                    return null;
+                });
+
+                future.get();
                 countSuccess.getAndIncrement();
             }
         }
 
         sw.stop();
-        log.info("downloading finished...");
+        log.info("Downloading finished");
 
-        MetaResult<SearchResultObject> mr = new MetaResult<>();
+        MetaResult<DownloadResultObject> mr = new MetaResult<>();
         mr.setCountAll(count.get());
         mr.setCountSuccess(countSuccess.get());
         mr.setDuration(Duration.ofMillis(sw.getTotalTimeMillis()));
-        mr.setResults(null);
+        mr.setResults(result);
 
-        return null;
+        return mr;
     }
 
 }

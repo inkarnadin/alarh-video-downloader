@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /**
- * Simple search result object.
+ * Search result transfer object.
  *
  * @author inkarnadin
  */

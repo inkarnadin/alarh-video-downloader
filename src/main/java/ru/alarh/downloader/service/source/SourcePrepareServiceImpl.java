@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.alarh.downloader.domain.Target;
-import ru.alarh.downloader.properties.SourceProperties;
+import ru.alarh.downloader.configuration.properties.SourceProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +26,7 @@ public class SourcePrepareServiceImpl implements SourcePrepareService {
     private final SourceProperties properties;
 
     /**
-     * Read target data from file which was specified via {@link ru.alarh.downloader.properties.SourceProperties}.
+     * Read target data from file which was specified via {@link SourceProperties}.
      * If target string not contains at least four colon symbols, it will be skipped.
      *
      * @return target list

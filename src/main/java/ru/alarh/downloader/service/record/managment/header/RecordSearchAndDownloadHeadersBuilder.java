@@ -27,7 +27,7 @@ public class RecordSearchAndDownloadHeadersBuilder implements HeaderBuilder {
     @Override
     public MultiValueMap<String, String> build(Target target) {
         String authString = Base64.getEncoder().encodeToString(String.format("%s:%s", target.getLogin(), target.getPassword()).getBytes());
-        log.debug(authString);
+        log.debug("Basic auth signature: {}", authString);
 
         MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, String.format("Basic %s", authString));

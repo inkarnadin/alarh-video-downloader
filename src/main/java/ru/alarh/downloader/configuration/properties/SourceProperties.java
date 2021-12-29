@@ -1,4 +1,4 @@
-package ru.alarh.downloader.properties;
+package ru.alarh.downloader.configuration.properties;
 
 import lombok.Getter;
 import lombok.Setter;

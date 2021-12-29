@@ -1,6 +1,7 @@
 package ru.alarh.downloader.service.record;
 
 import ru.alarh.downloader.controller.dto.MetaResult;
+import ru.alarh.downloader.service.record.dto.DownloadResultObject;
 import ru.alarh.downloader.service.record.dto.SearchResultObject;
 
 /**
@@ -11,12 +12,17 @@ import ru.alarh.downloader.service.record.dto.SearchResultObject;
 public interface CameraRecordService {
 
     /**
-     * Aggregate method for search by all targets.
+     * Method for search by all targets.
      *
      * @return metadata object with searching results
      */
     MetaResult<SearchResultObject> searchByAll();
 
-    MetaResult<Void> downloadRecords();
+    /**
+     * Method for download by all targets.
+     *
+     * @return metadata object with downloading results
+     */
+    MetaResult<DownloadResultObject> downloadRecords();
 
 }
