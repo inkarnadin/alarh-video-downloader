@@ -106,14 +106,12 @@ public class CameraRecordServiceImpl implements CameraRecordService {
         StopWatch sw = new StopWatch();
         sw.start();
 
-        List<Target> targets = sourcePrepareService.readTargetFromFileSystem();
-
         AtomicInteger count = new AtomicInteger();
         AtomicInteger countSuccess = new AtomicInteger();
 
         List<DownloadResultObject> result = new ArrayList<>();
 
-        for (Target target : targets) {
+        for (Target target : PlaybackCacheHolder.getTargets()) {
             List<PlaybackObject> playbacks = PlaybackCacheHolder.getPlaybacks(target);
             count.getAndAdd(playbacks.size());
 

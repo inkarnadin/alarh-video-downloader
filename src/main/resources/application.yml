@@ -5,8 +5,8 @@ alarh:
   source:
     path: source.txt
   search:
-    startDate: 2021-12-28T00:00:00Z
-    endDate: 2021-12-29T00:00:00Z
+    startDate: 2021-12-01T00:00:00Z
+    endDate: 2021-12-31T00:00:00Z
     resultLimit: 4
     startPosition: 0
 

@@ -6,6 +6,7 @@ import ru.alarh.downloader.service.record.dto.PlaybackObject;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,6 +46,15 @@ public final class PlaybackCacheHolder {
      */
     public static void remove(Target target) {
         playbackMap.remove(target);
+    }
+
+    /**
+     * Get all targets with valid playbacks.
+     *
+     * @return list of target
+     */
+    public static Set<Target> getTargets() {
+        return playbackMap.keySet();
     }
 
 }
