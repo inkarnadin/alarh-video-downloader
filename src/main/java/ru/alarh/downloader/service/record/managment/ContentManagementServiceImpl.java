@@ -140,8 +140,8 @@ public class ContentManagementServiceImpl implements ContentManagementService {
             HttpEntity<String> body = new HttpEntity<>(xmlBody, headerBuilder.build(target));
             ResponseEntity<byte[]> res = (ResponseEntity<byte[]>) webClient.doGetWithBody(url, body, byte[].class);
 
-            FileSystemUtility.createDirectoryIfAbsent();
-            FileSystemUtility.writeDataToFile(playback.getName(), res.getBody());
+            FileSystemUtility.createDirectoryIfAbsent(target.getHost());
+            FileSystemUtility.writeDataToFile(target.getHost(), playback.getName(), res.getBody());
         } catch (Exception xep) {
             log.warn("Downloading finished failure: {}, reason: {}", playback.getName(), xep.getMessage());
             return false;

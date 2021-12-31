@@ -7,7 +7,7 @@ alarh:
   search:
     startDate: 2021-12-01T00:00:00Z
     endDate: 2021-12-31T00:00:00Z
-    resultLimit: 4
+    resultLimit: 100
     startPosition: 0
 
 logging:
