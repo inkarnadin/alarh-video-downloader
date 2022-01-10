@@ -10,7 +10,7 @@ import ru.alarh.downloader.domain.Target;
 import ru.alarh.downloader.service.record.dto.DownloadResultObject;
 import ru.alarh.downloader.service.record.dto.PlaybackObject;
 import ru.alarh.downloader.service.record.dto.SearchResultObject;
-import ru.alarh.downloader.service.record.managment.ContentManagementServiceImpl;
+import ru.alarh.downloader.service.record.managment.ContentManagementService;
 import ru.alarh.downloader.service.source.SourcePrepareService;
 import ru.alarh.downloader.store.PlaybackCacheHolder;
 
@@ -32,7 +32,7 @@ public class CameraRecordServiceImpl implements CameraRecordService {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(6);
 
-    private final ContentManagementServiceImpl contentManagementService;
+    private final ContentManagementService contentManagementService;
     private final SourcePrepareService sourcePrepareService;
 
     /**
@@ -122,13 +122,13 @@ public class CameraRecordServiceImpl implements CameraRecordService {
                     boolean isLoaded = contentManagementService.downloadContent(target, playback);
                     if (isLoaded) {
                         result.add(new DownloadResultObject(playback.getName()));
-                        counter.incrementAndGet();
+                        countSuccess.getAndIncrement();
                     }
                     return null;
                 });
 
                 future.get();
-                countSuccess.getAndIncrement();
+                counter.incrementAndGet();
             }
         }
 
